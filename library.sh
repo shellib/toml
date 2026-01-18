@@ -132,8 +132,9 @@ username = "testuser"
 EOF
     
     # Test getting values
-    local method=$(get_value "default" "method" "$temp_file")
-    if [ "$method" = "fallback" ]; then
+    local method
+    method=$(get_value "default" "method" "$temp_file")
+    if [ "${method:-}" = "fallback" ]; then
         echo "✓ get_value gets default method"
     else
         echo "✗ get_value failed for default method, got: '$method'"
@@ -141,8 +142,9 @@ EOF
         return 1
     fi
     
-    local github_method=$(get_value "\"github.com\"" "method" "$temp_file")
-    if [ "$github_method" = "https" ]; then
+    local github_method
+    github_method=$(get_value "\"github.com\"" "method" "$temp_file")
+    if [ "${github_method:-}" = "https" ]; then
         echo "✓ get_value gets quoted section method"
     else
         echo "✗ get_value failed for quoted section, got: '$github_method'"
@@ -150,8 +152,9 @@ EOF
         return 1
     fi
     
-    local username=$(get_value "\"gitlab.example.com/org/repo\"" "username" "$temp_file")
-    if [ "$username" = "testuser" ]; then
+    local username
+    username=$(get_value "\"gitlab.example.com/org/repo\"" "username" "$temp_file")
+    if [ "${username:-}" = "testuser" ]; then
         echo "✓ get_value gets username"
     else
         echo "✗ get_value failed for username, got: '$username'"
@@ -160,8 +163,9 @@ EOF
     fi
     
     # Test non-existing key
-    local nonexistent=$(get_value "default" "nonexistent" "$temp_file")
-    if [ -z "$nonexistent" ]; then
+    local nonexistent
+    nonexistent=$(get_value "default" "nonexistent" "$temp_file")
+    if [ -z "${nonexistent:-}" ]; then
         echo "✓ get_value returns empty for non-existing key"
     else
         echo "✗ get_value should return empty for non-existing key, got: '$nonexistent'"
@@ -186,8 +190,9 @@ username = "testuser"
 EOF
     
     # Test getting section
-    local section_data=$(get_section "\"gitlab.example.com/org/repo\"" "$temp_file")
-    if echo "$section_data" | grep -q "method|ssh" && echo "$section_data" | grep -q "username|testuser"; then
+    local section_data
+    section_data=$(get_section "\"gitlab.example.com/org/repo\"" "$temp_file")
+    if echo "${section_data:-}" | grep -q "method|ssh" && echo "${section_data:-}" | grep -q "username|testuser"; then
         echo "✓ get_section gets all key-value pairs"
     else
         echo "✗ get_section failed, got: '$section_data'"
@@ -214,8 +219,9 @@ method = "ssh"
 EOF
     
     # Test listing sections
-    local sections=$(list_sections "$temp_file")
-    if echo "$sections" | grep -q "default" && echo "$sections" | grep -q "\"github.com\"" && echo "$sections" | grep -q "\"gitlab.example.com/org/repo\""; then
+    local sections
+    sections=$(list_sections "$temp_file")
+    if echo "${sections:-}" | grep -q "default" && echo "${sections:-}" | grep -q "\"github.com\"" && echo "${sections:-}" | grep -q "\"gitlab.example.com/org/repo\""; then
         echo "✓ list_sections lists all sections"
     else
         echo "✗ list_sections failed, got: '$sections'"
@@ -246,8 +252,7 @@ run_tests() {
     fi
 }
 
-# Run tests if --test is passed and we're not being sourced
-if [ "$1" = "--test" ] && [ "${BASH_SOURCE[0]}" = "${0}" ]; then
+if [ "${1:-}" = "--test" ] && [ "${BASH_SOURCE[0]}" = "${0}" ]; then
     run_tests
     exit $?
 fi
